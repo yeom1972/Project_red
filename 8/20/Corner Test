@@ -1,0 +1,35 @@
+import numpy as np
+import cv2
+
+def tracking():
+    img = cv2.imread('C:\data\project\calctest.jpg')
+    img = cv2.resize(img, (300, 300))
+    img2 = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img2 = cv2.resize(img2, (300, 300))
+    #img1 = cv2.imread('C:\data\project\calctest_white.jpg')
+    #cap = cv2.subtract(img1,img)
+    lower_red = np.array([167, 100, 150])
+    upper_red = np.array([179, 255, 255])
+    while True:
+        frame = img
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        red_range = cv2.inRange(hsv, lower_red, upper_red)
+        red_result = cv2.bitwise_and(frame, frame, mask=red_range)
+        red_result = cv2.resize(red_result, (300, 300))
+        frame = cv2.resize(frame, (300, 300))
+        cv2.imshow("original", frame)
+        cv2.imshow("red", red_result)
+        key = cv2.waitKey(1) & 0xFF
+        if key == 27:
+            break
+    red_result_gray = cv2.cvtColor(red_result, cv2.COLOR_BGR2GRAY)
+    corners = cv2.goodFeaturesToTrack(red_result_gray,4,0.01,10)
+    corners = np.int0(red_result_gray)
+    for i in corners:
+        x,y = i.ravel()
+        cv2.circle(red_result_gray,(x,y),3,255,-1)
+    cv2.imshow("img2", red_result_gray)
+    cv2.waitKey()
+    cv2.destroyAllWindows()
+
+tracking()

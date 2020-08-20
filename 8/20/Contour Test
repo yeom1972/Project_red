@@ -1,0 +1,43 @@
+import numpy as np
+import cv2
+
+def tracking():
+    img = cv2.imread('C:\data\project\calctest.jpg')
+    img = cv2.resize(img, (1280, 960))
+    #img1 = cv2.imread('C:\data\project\calctest_white.jpg')
+    #cap = cv2.subtract(img1,img)
+    lower_red = np.array([167, 100, 150])
+    upper_red = np.array([179, 255, 255])
+    while True:
+        frame = img
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        red_range = cv2.inRange(hsv, lower_red, upper_red)
+        red_result = cv2.bitwise_and(frame, frame, mask=red_range)
+        red_result = cv2.resize(red_result, (1280, 960))
+        frame = cv2.resize(frame, (1280, 960))
+        cv2.imshow("original", frame)
+        cv2.imshow("red", red_result)
+        key = cv2.waitKey(1) & 0xFF
+        if key == 27:
+            gray = cv2.cvtColor(red_result, cv2.COLOR_BGR2GRAY)
+            break
+
+    mode = cv2.RETR_EXTERNAL
+    method = cv2.CHAIN_APPROX_NONE
+
+    contours, hierarchy = cv2.findContours(gray, mode, method)
+
+    cnt = contours[0]
+
+    epsilon = 0.1*cv2.arcLength(cnt, True)
+
+    approx = cv2.approxPolyDP(cnt, epsilon, True)
+
+    cv2.drawContours(img, approx, -1, (0,255,255), 3)
+
+    cv2.imshow("img2", img)
+    cv2.imshow("imggray", gray)
+    cv2.waitKey()
+    cv2.destroyAllWindows()
+
+tracking()

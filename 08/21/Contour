@@ -1,0 +1,68 @@
+import cv2
+import numpy as np
+from matplotlib import pyplot as plt
+import ctypes
+
+# Image Seclect
+imgBase = cv2.imread('C:\data\project\calctest.jpg')
+img = cv2.resize(imgBase, (1280, 960))
+img_draw = cv2.resize(imgBase, (1280, 960))
+img_draw2 = cv2.resize(imgBase, (1280, 960))
+hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+# Image Seclect
+
+# Color Separation - Square
+h, s, v = cv2.split(hsv)
+
+retval_v, none, none, none = cv2.mean(v)
+
+print('retval_v:',retval_v)
+
+lowerb = (167, 100, 150)
+upperb = (179, 255, 255)
+
+dst = cv2.inRange(hsv, lowerb, upperb)
+# Color Separation - Square
+
+# Draw Contours Square
+mode = cv2.RETR_LIST
+method = cv2.CHAIN_APPROX_NONE
+
+contours, hierarchy = cv2.findContours(dst, mode, method)
+
+cnt = contours
+print(len(contours))
+#epsilon = 0.001*cv2.arcLength(cnt, True)
+
+#approx = cv2.approxPolyDP(cnt, epsilon, True)
+
+#mapX1 = approx[0][0]
+#mapX2 = approx[1][0]
+#mapX3 = approx[2][0]
+#mapX4 = approx[3][0]
+sketch = cv2.inRange(img, (0,0,0), (0,0,0))
+sketch_draw = cv2.inRange(img, (0,0,0), (0,0,0))
+#cv2.drawContours(dst, cnt, -1, (255,255,255), 1)
+
+cv2.drawContours(sketch, cnt, -1, (255,255,255), 1)
+# Draw Contours Square
+
+contours1, hierarchy1 = cv2.findContours(sketch, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+cnt1 = contours1[7]
+
+epsilon = 0.01*cv2.arcLength(cnt1, True)
+
+approx = cv2.approxPolyDP(cnt1, epsilon, True)
+
+cv2.drawContours(sketch_draw, approx, -1, (255,255,255), 10)
+
+
+#cv2.imshow('dst',dst) # Base Picture
+cv2.imshow('BaseImg',img) # Base Picture
+cv2.imshow('sketch',sketch) # Base Picture
+cv2.imshow('sketch_draw',sketch_draw) # Base Picture
+cv2.imshow('DrawingImg',img_draw) # Contours Picture - Square
+cv2.imshow('DrawingIm2g',img_draw2) # Contours Picture - Square
+cv2.waitKey()
+cv2.destroyAllWindows()

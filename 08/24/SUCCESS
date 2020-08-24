@@ -1,0 +1,56 @@
+import cv2
+import numpy as np
+from matplotlib import pyplot as plt
+import ctypes
+import cv2
+
+maxArea=0 # 컨투어 연산자 - 최대값
+maxCntC=0 # 컨투어 연산자 - 카운터
+
+img_color = cv2.imread('C:\data\project\project11l.jpg', cv2.IMREAD_COLOR)
+img_color = cv2.resize(img_color, (1280, 960))
+img_hsv = cv2.cvtColor(img_color, cv2.COLOR_BGR2HSV)
+
+lowerb = (167, 100, 150)
+upperb = (179, 255, 255)
+
+dst = cv2.inRange(img_hsv, lowerb, upperb)
+dst_noise = cv2.fastNlMeansDenoising(dst, h=30, dst=dst) # dst 사진을 정확도 30정도로 잡음제거 (30에서 높아질수록 제거량 많아짐)
+
+# EDGE
+img_sobel_x = cv2.Sobel(dst_noise, cv2.CV_64F, 1, 0, ksize=3)
+img_sobel_x = cv2.convertScaleAbs(img_sobel_x)
+
+img_sobel_y = cv2.Sobel(dst_noise, cv2.CV_64F, 0, 1, ksize=3)
+img_sobel_y = cv2.convertScaleAbs(img_sobel_y)
+
+img_sobel = cv2.addWeighted(img_sobel_x, 1, img_sobel_y, 1, 0);
+# EDGE
+
+mode = cv2.RETR_EXTERNAL # 외곽에 있는 컨투어만 찾아냄 (컨투어안에있는 컨투어는 찾지않음)
+method = cv2.CHAIN_APPROX_NONE # 모든 컨투어의 점 찾음
+
+contours, hierarchy = cv2.findContours(img_sobel, mode, method)
+
+# 최대 컨투어 연산
+for cntC in range(len(contours)):
+    cnt = contours[cntC]
+    area = cv2.contourArea(cnt)
+    if area>maxArea:
+        maxArea=area
+        maxCntC=cntC
+# 최대 컨투어 연산
+
+epsilon = 0.1*cv2.arcLength(contours[maxCntC], True) # 컨투어꼭지점을 찾기위한 정확도 연산자 (컨투어길이의 10%로 설정 높아질수록 꼭지점의 개수가 줄어듬)
+
+approx = cv2.approxPolyDP(contours[maxCntC], epsilon, True) # epsilon 값에 따라 다각형을 다시 리턴해줌
+
+cv2.drawContours(img_color, approx, -1, (0,255,255), 10)
+
+cv2.imshow("dst", dst)
+cv2.imshow("dst_noise", dst_noise)
+cv2.imshow("img_color", img_color)
+cv2.imshow("Sobel", img_sobel)
+
+cv2.waitKey()
+cv2.destroyAllWindows()

@@ -1,0 +1,42 @@
+String val_X;
+String val_Y;
+int num=0;
+int num_Range=0;
+int Range_Done=1;
+int i=0;
+char sig[8];
+int test;
+
+void setup() {
+Serial1.begin(115200);
+Serial.begin(115200);
+}
+
+void loop() {
+if(Serial1.available())
+{
+   sig[num] = Serial1.read();
+   num = num+1;
+   test=0;
+   if(Serial1.read()==","){
+      while(i<num){
+      val_X = val_X + sig[i];
+      i = i+1;
+      if(Range_Done==1){
+          num_Range=i;
+          Range_Done=0;
+              }
+          }
+      }else if(Serial1.read()=="|"){
+            while(num_Range<num){
+            val_Y = val_Y + sig[num_Range];
+            num_Range = num_Range+1;
+            }
+        }
+    }
+    if (test==0){
+  Serial.println(val_Y);
+  Serial.println(val_X);
+  test=1;
+  }
+}

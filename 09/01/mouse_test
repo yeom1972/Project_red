@@ -1,0 +1,28 @@
+String val;
+int num=0;
+int i=0;
+char sig[8];
+int test;
+
+void setup() {
+Serial1.begin(115200);
+Serial.begin(115200);
+}
+
+void loop() {
+if(Serial1.available())
+{
+   sig[num] = Serial1.read();
+   num = num+1;
+   test=0;
+   
+}
+while(i<num){
+  val = val + sig[i];
+  i = i+1;
+  }
+if (test==0){
+  Serial.println(val);
+  test=1;
+  }
+}
